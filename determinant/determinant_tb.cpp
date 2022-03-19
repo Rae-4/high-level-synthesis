@@ -1,5 +1,9 @@
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+#include <string>
 
 #include "mc_scverify.h"
 #include "determinant.h"
@@ -10,12 +14,25 @@
 
 void get_minor(int **minor, int **source, int n, int i, int j);
 int ref_determinant(int **matrix, int n);
-
+void print_matrix(std::ofstream file, int (*get_elem)(int, int), int n);
 
 CCS_MAIN(int argc, char *argv[])
 {
-    int det_ref[N_TESTS];
-    ac_int<W,S> det_duv[N_TESTS];
+    // Open the testbench result report file
+    std::string filename = "determinant_tb_output.txt"
+    time_t now = time(0);
+    char *timestring = ctime(&now);
+
+    std::ofstream ofile;
+    ofile.open(filename, std::ios::out);
+    ofile << "Determinant testbench results - " << timestring << std::endl;
+
+    int det_ref;
+    int error_count = 0;
+    ac_int<W,S> det_duv;
+    ac_int<W,S> max, min;
+    max.set_val<AC_VAL_MAX>();
+    min.set_val<AC_VAL_MIN>();
 
 
     // Control test values and negative values. Expanded with modulo indexes for larger arrays.
@@ -23,39 +40,97 @@ CCS_MAIN(int argc, char *argv[])
     
     // Initialize the reference source matrix.
     int **matrix_ref = new int*[N];
-    int **matrix_ref_neg = new int*[N];
     for (int i = 0; i < N; ++i) {
         matrix_ref[i] = new int[N];
-        matrix_ref_neg[i] = new int[N];
     }
 
     ac_int<W,S> matrix_duv[N][N];
 
+    // Test with control values
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             matrix_duv[i][j] = A[i % 3][j % 3];
-             // TODO: Does this need explicit type conversion
             matrix_ref[i][j] = A[i % 3][j % 3];
-            matrix_ref_neg[i][j] = -A[i % 3][j % 3];
         }
     }
-    det_ref[0] = ref_determinant(matrix_ref, N);
-    CCS_DESIGN(determinant)(matrix_duv, det_duv[0]);
-    
-    // TODO: Random values
-    
+    det_ref = ref_determinant(matrix_ref, N);
+    CCS_DESIGN(determinant)(matrix_duv, det_duv);
 
+    if (det_ref == det_duv) {
+        ofile << "Test control values - OK" << std::endl;
+    }
+    else {
+        ofile << "Test control values - ERROR" << std::endl;
+        ofile << "Reference matrix:" << std::endl;
+        print_matrix(ofile, [matrix_ref](int i, int j){ return matrix_ref[i][j]; }, N);
+        ofile << "Reference determinant: " << det_ref << std::endl;
+        ofile << "DUV matrix:" << std::endl;
+        print_matrix(ofile, [matrix_duv](int i, int j){ return matrix_duv[i][j]; }, N);
+        ofile << "DUV determinant: " << det_duv << std::endl;
+        ofile << std::endl;
+        error_count++;
+    }
 
-
-    //ac_int<W,S> det;
-    //CCS_DESIGN(determinant)(A, det);
+    // Test with negative control values
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            matrix_duv[i][j] = -A[i % 3][j % 3];
+            matrix_ref[i][j] = -A[i % 3][j % 3];
+        }
+    }
+    det_ref = ref_determinant(matrix_ref, N);
+    CCS_DESIGN(determinant)(matrix_duv, det_duv);
     
-    //std::cout << det << std::endl;
- 
-    // Open the testbench result report file
-    std::ofstream ofile;
-    ofile.open("determinant_tb_output.txt", std::ios::out);
-    ofile << "Determinant testbench results" << std::endl;
+    if (det_ref == det_duv) {
+        ofile << "Test negative control values - OK" << std::endl;
+    }
+    else {
+        ofile << "Test negative control values - ERROR" << std::endl;
+        ofile << "Reference matrix:" << std::endl;
+        print_matrix(ofile, [matrix_ref](int i, int j){ return matrix_ref[i][j]; }, N);
+        ofile << "Reference determinant: " << det_ref << std::endl;
+        ofile << "DUV matrix:" << std::endl;
+        print_matrix(ofile, [matrix_duv](int i, int j){ return matrix_duv[i][j]; }, N);
+        ofile << "DUV determinant: " << det_duv << std::endl;
+        ofile << std::endl;
+        error_count++;
+    }
+
+    // Random values test
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            int random_value = (rand() % (max-min)) + min;
+            matrix_duv[i][j] = random_value;
+            matrix_ref[i][j] = random_value;
+        }
+    }
+    det_ref = ref_determinant(matrix_ref, N);
+    CCS_DESIGN(determinant)(matrix_duv, det_duv);
+
+    if (det_ref == det_duv) {
+        ofile << "Test random values - OK" << std::endl;
+    }
+    else {
+        ofile << "Test random values - ERROR" << std::endl;
+        ofile << "Reference matrix:" << std::endl;
+        print_matrix(ofile, [matrix_ref](int i, int j){ return matrix_ref[i][j]; }, N);
+        ofile << "Reference determinant: " << det_ref << std::endl;
+        ofile << "DUV matrix:" << std::endl;
+        print_matrix(ofile, [matrix_duv](int i, int j){ return matrix_duv[i][j]; }, N);
+        ofile << "DUV determinant: " << det_duv << std::endl;
+        ofile << std::endl;
+        error_count++;
+    }
+
+    // Print error message to console
+    if (error_count == 0) {
+        std::cout << "Test OK, no errors found." << std::endl;
+    } else {
+        std::cout << "Errors in "
+                  << error_count 
+                  << " testcases. Details in " 
+                  << filename << std::endl;
+    }
 
     // Close the output file
     ofile.close();
@@ -63,10 +138,8 @@ CCS_MAIN(int argc, char *argv[])
     // Cleanup the reference array
     for (int i = 0; i < N; ++i) {
         delete matrix_ref[i];
-        delete matrix_ref_neg[i];
     }
     delete [] matrix_ref;
-    delete [] matrix_ref_neg;
     
     CCS_RETURN(0);
 }
@@ -86,7 +159,7 @@ void get_minor(int **minor, int **source, int n, int i, int j)
     }
 }
 
-// Return the determinant for a nxn matrix
+/// Return the determinant for a nxn matrix
 int ref_determinant(int **matrix, int n)
 {
     int det = 0;
@@ -114,4 +187,17 @@ int ref_determinant(int **matrix, int n)
     delete[] minor;
 
     return det;
+}
+
+/// Print a matrix of nxn dimensions to file. Function get_elem provides the 
+// matrix element at (i, j) position. 
+void print_matrix(std::ofstream file, int (*get_elem)(int, int), int n)
+{
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            file << get_elem(i, j) << " ";
+        }
+        file << std::endl;
+    }
+    file << std::endl;
 }
