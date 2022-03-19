@@ -1,0 +1,74 @@
+
+# Messages from "go new"
+
+
+# Messages from "go analyze"
+
+/INPUTFILES/4
+Edison Design Group C++/C Front End - Version 5.0 (CIN-1)
+Front End called with arguments: -- /mnt/hgfs/P/high-level-synthesis/repo/determinant/determinant.cpp (CIN-69)
+# Info: Starting transformation 'analyze' on solution 'solution.v1' (SOL-8)
+Moving session transcript to file "/mnt/hgfs/P/high-level-synthesis/repo/determinant/catapult.log"
+Source file analysis completed (CIN-68)
+/INPUTFILES/1
+/INPUTFILES/3
+/INPUTFILES/2
+
+# Messages from "go compile"
+
+Inlining method 'determinant_helper<3>::get_minor<ac_int<17, true>>' (CIN-14)
+Inlining method 'determinant_helper<3>::do_determinant<ac_int<17, true>>' (CIN-14)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::getElement' on object 'input_mat' (CIN-64)
+# Warning: ignoring 'std::cout<<' statement and all side effects of parameters for synthesis, additional encounters also ignored (CIN-263)
+Inlining member function 'Matrix<ac_int<17, true>, 2>::Matrix' on object 'minor' (CIN-64)
+Inlining member function 'Matrix<ac_int<17, true>, 2>::setElement' on object 'minor' (CIN-64)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::Matrix' on object 'input_mat' (CIN-64)
+# Error: Compilation aborted (CIN-5)
+Inlining routine 'determinant' (CIN-14)
+# Error: Function 'basic_ostream::operator<<' is marked as built-in but is not recognized (CIN-60)
+Inlining routine 'determinant_calc<ac_int<17, true>, 3>' (CIN-14)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::setElement' on object 'input_mat' (CIN-64)
+Generating synthesis internal form... (CIN-3)
+# Info: Starting transformation 'compile' on solution 'solution.v1' (SOL-8)
+Synthesizing routine 'determinant' (CIN-13)
+Found top design routine 'determinant' specified by directive (CIN-52)
+Inlining method 'determinant_helper<3>::get_minor<ac_int<17, true>>' (CIN-14)
+Inlining method 'determinant_helper<3>::do_determinant<ac_int<17, true>>' (CIN-14)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::getElement' on object 'input_mat' (CIN-64)
+Inlining member function 'Matrix<ac_int<17, true>, 2>::Matrix' on object 'minor' (CIN-64)
+# Error: go compile: Failed compile
+Inlining member function 'Matrix<ac_int<17, true>, 3>::Matrix' on object 'input_mat' (CIN-64)
+# Info: Completed transformation 'analyze' on solution 'solution.v1': elapsed time 0.60 seconds, memory usage 1291696kB, peak memory usage 1292344kB (SOL-9)
+Inlining routine 'determinant' (CIN-14)
+Inlining routine 'determinant_calc<ac_int<17, true>, 3>' (CIN-14)
+File '$PROJECT_HOME/determinant.cpp' saved
+Inlining member function 'Matrix<ac_int<17, true>, 3>::setElement' on object 'input_mat' (CIN-64)
+Generating synthesis internal form... (CIN-3)
+# Info: Starting transformation 'compile' on solution 'solution.v1' (SOL-8)
+Synthesizing routine 'determinant' (CIN-13)
+Found top design routine 'determinant' specified by directive (CIN-52)
+# Warning: ignoring 'std::cout<<' statement and all side effects of parameters for synthesis, additional encounters also ignored (CIN-263)
+Inlining member function 'Matrix<ac_int<17, true>, 2>::setElement' on object 'minor' (CIN-64)
+# Error: Compilation aborted (CIN-5)
+# Error: Function 'basic_ostream::operator<<' is marked as built-in but is not recognized (CIN-60)
+/DESIGN_HIERARCHY determinant
+# Info: Completed transformation 'analyze' on solution 'solution.v1': elapsed time 1.24 seconds, memory usage 1292344kB, peak memory usage 1292344kB (SOL-9)
+Inlining method 'determinant_helper<3>::get_minor<ac_int<17, true>>' (CIN-14)
+Inlining method 'determinant_helper<3>::do_determinant<ac_int<17, true>>' (CIN-14)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::getElement' on object 'input_mat' (CIN-64)
+Inlining member function 'Matrix<ac_int<17, true>, 2>::Matrix' on object 'minor' (CIN-64)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::Matrix' on object 'input_mat' (CIN-64)
+Inlining routine 'determinant' (CIN-14)
+Inlining routine 'determinant_calc<ac_int<17, true>, 3>' (CIN-14)
+Inlining member function 'Matrix<ac_int<17, true>, 3>::setElement' on object 'input_mat' (CIN-64)
+# Error: go compile: Failed compile
+# Info: Completed transformation 'analyze' on solution 'solution.v1': elapsed time 0.51 seconds, memory usage 1292344kB, peak memory usage 1292344kB (SOL-9)
+File '$PROJECT_HOME/determinant.cpp' saved
+# Warning: ignoring 'std::cout<<' statement and all side effects of parameters for synthesis, additional encounters also ignored (CIN-263)
+Inlining member function 'Matrix<ac_int<17, true>, 2>::setElement' on object 'minor' (CIN-64)
+# Error: Compilation aborted (CIN-5)
+# Error: Function 'basic_ostream::operator<<' is marked as built-in but is not recognized (CIN-60)
+Generating synthesis internal form... (CIN-3)
+# Info: Starting transformation 'compile' on solution 'solution.v1' (SOL-8)
+Synthesizing routine 'determinant' (CIN-13)
+Found top design routine 'determinant' specified by directive (CIN-52)

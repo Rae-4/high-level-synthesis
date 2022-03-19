@@ -10,33 +10,32 @@ template<int N_det>
 struct determinant_helper
 {
   // Prevent N_det from being larger than 10
-  //static_assert(N_det <= 10, "N_det can not be larger than 10" );
+  static_assert(N_det <= 10, "N_det can not be larger than 10" );
+  // typedef ac_int<ac::log2_ceil<N_det>::val> index_t;
   
   // Return the minor matrix of element (i,j) for determinant calculation
   template<typename T>
   static Matrix<T, N_det-1> get_minor(const Matrix<T, N_det>& matrix, int i, int j)
   {
-    Matrix<T, N_det-1> minor;
-    bool higher_col = false;
-    bool higher_row = false;
+    const int minor_n = N_det - 1;
+    Matrix<T, minor_n> minor;
+    int source_col = 0;
+    int source_row = 0;
 
-    for (int row = 1; row < N_det; ++row) {
-      for (int col = 0; col < j; ++col) {
-        minor.setElement(row - 1, col, matrix.getElement(row, col));
-      }
-      for (int col2 = j+1; col2 < N_det; ++col2) {
-        minor.setElement(row - 1, col2 - 1, matrix.getElement(row, col2));  
+    for (int row = 0; row != minor_n; row++) {
+      if (row >= i) 
+        source_row = row + 1;
+      else
+        source_row = row;
+      for (int col = 0; col != minor_n; col++) {
+        if (col >= j) 
+          source_col = col + 1;
+        else
+          source_col = col;
+
+        minor.setElement(row, col, matrix.getElement(source_row, source_col));
       }
     }
-#ifdef DEBUG
-    std::cout << "minor matrix of i, j - " << i << ", " << j << ":" << std::endl;;
-    for (int a = 0; a < N_det-1; ++a) {
-      for (int b = 0; b < N_det-1; ++b) {
-        std::cout << minor.getElement(a, b) << ", ";
-      }
-      std::cout << std::endl;;
-    }
-#endif
     return minor;
   }
 
@@ -46,12 +45,9 @@ struct determinant_helper
   {
 	// TODO: Calculate and return the determinant of the param matrix. You will need to recursively call do_determinant here.
     T determinant = 0;
-    for (int j = 0; j < N_det; ++j) {
+    for (int j = 0; j != N_det; j++) {
       const Matrix<T, N_det-1> minor = determinant_helper<N_det>::get_minor<T>(param, 0, j);
       T minor_determinant = determinant_helper<N_det-1>::do_determinant(minor);
-#ifdef DEBUG
-      std::cout << "minor determinant: " << minor_determinant << std::endl;
-#endif
       determinant += ((j % 2 == 0) ? 1 : -1) * param.getElement(0, j) * minor_determinant;
     }
     return determinant;
