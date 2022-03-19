@@ -3,6 +3,8 @@
 
 #include <ac_int.h>
 
+#define DEBUG
+
 const int N = 3; // Matrix size (NxN)
 const int W = 17; // Width. This may have to be increased with some test cases.
 const int S = 1;  // Signedness (signed)
