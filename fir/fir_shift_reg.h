@@ -9,4 +9,5 @@ typedef ac_int<WIDTH,false> dType;
 const int N_REGS = 8;
 
 void fir_shift_reg(dType din, dType taps[N_REGS], dType &dout);
+void fir_circular_buffer(dType din, dType taps[N_REGS], dType &dout);
 #endif

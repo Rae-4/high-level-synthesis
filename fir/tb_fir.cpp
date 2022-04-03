@@ -10,10 +10,17 @@ CCS_MAIN(int argc, char *argv[]){
 	for (int i = 0; i<N_REGS;i++){
 		dType input = 1;
 		dType output;
+		//dType golden_output;
 		CCS_DESIGN(fir_shift_reg)(input,taps,output);
+		// fir_shift_reg(input, taps, golden_output);
+		// CCS_DESIGN(fir_circular_buffer)(input, taps, output);
 		std::cout << "input = " << input
 			<< ", output = " << output
+			//<< ", golden output = " << golden_output
 			<< std::endl;
+		//if (output != golden_output)
+		//	std::cout << " ERROR ";
+		//std::cout << std::endl;
 	}
 	CCS_RETURN(0);
 }
