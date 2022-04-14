@@ -1,0 +1,26 @@
+Determinant testbench results - Sun Mar 20 15:01:39 2022
+
+Test control values - ERROR
+Reference matrix:
+((1, 0, 10), (11, 12, 0), (33, 55, 66))
+Reference determinant: 2882
+DUV matrix:
+((1, 0, 10), (11, 12, 0), (33, 55, 66))
+DUV determinant: -5808
+
+Test negative control values - ERROR
+Reference matrix:
+((-1, 0, -10), (-11, -12, 0), (-33, -55, -66))
+Reference determinant: -2882
+DUV matrix:
+((-1, 0, -10), (-11, -12, 0), (-33, -55, -66))
+DUV determinant: 5808
+
+Test random values - ERROR
+Reference matrix:
+((-8, 7, 0), (-2, -4, -2), (1, 3, 6))
+Reference determinant: 214
+DUV matrix:
+((-8, 7, 0), (-2, -4, -2), (1, 3, 6))
+DUV determinant: 228
+

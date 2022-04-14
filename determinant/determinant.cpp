@@ -1,8 +1,8 @@
 // name             :   Joonas Ikonen
 // student number   :   150244761
 #include "determinant.h"
-#include <ac_assert.h>
 
+#include <ac_assert.h>
 #include "matrix.h"
 
 // Helper struct for determinant calculation
@@ -10,32 +10,47 @@ template<int N_det>
 struct determinant_helper
 {
   // Prevent N_det from being larger than 10
-  static_assert(N_det <= 10, "N_det can not be larger than 10" );
+  // static_assert(N_det <= 10, "N_det can not be larger than 10" );
   // typedef ac_int<ac::log2_ceil<N_det>::val> index_t;
   
   // Return the minor matrix of element (i,j) for determinant calculation
   template<typename T>
   static Matrix<T, N_det-1> get_minor(const Matrix<T, N_det>& matrix, int i, int j)
   {
-    const int minor_n = N_det - 1;
-    Matrix<T, minor_n> minor;
-    int source_col = 0;
-    int source_row = 0;
+    Matrix<T, N_det-1> minor;
+    bool decrement_row = false;
+    bool decrement_col = false;
 
-    for (int row = 0; row != minor_n; row++) {
-      if (row >= i) 
-        source_row = row + 1;
-      else
-        source_row = row;
-      for (int col = 0; col != minor_n; col++) {
-        if (col >= j) 
-          source_col = col + 1;
-        else
-          source_col = col;
-
-        minor.setElement(row, col, matrix.getElement(source_row, source_col));
+    for (int row = 0; row != N_det; row++) {
+      // Skip the i:th row and mark minor row index for reduction
+      if (row == i) {
+        decrement_row = true;
+      } else {
+        for (int col = 0; col != N_det; col++) {
+          // Skip the j:th column and mark minor column index for reduction
+          if (col == j) {
+            decrement_col = true;
+          } else {
+            minor.setElement(
+              row - (decrement_row ? 1 : 0),
+              col - (decrement_col ? 1 : 0),
+              matrix.getElement(row, col));
+          }
+        }
+        decrement_col = false;
       }
     }
+    // Test print to find the error in get_minor
+    /*
+    std::cout << "Returning minor matrix:" << std::endl;
+    for (int i = 0; i != N_det-1; i++) {
+      for (int j = 0; j != N_det-1; j++) {
+        std::cout << minor.getElement(i,j) << " ";
+      }
+      std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    */
     return minor;
   }
 

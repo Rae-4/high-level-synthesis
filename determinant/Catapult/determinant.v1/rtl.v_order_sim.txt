@@ -1,4 +1,0 @@
-/opt/catapult/Catapult_Synthesis_10.3d-815731/Mgc_home/pkgs/siflibs/ccs_in_v1.v
-/opt/catapult/Catapult_Synthesis_10.3d-815731/Mgc_home/pkgs/siflibs/ccs_out_v1.v
-/opt/catapult/Catapult_Synthesis_10.3d-815731/Mgc_home/pkgs/siflibs/mgc_io_sync_v2.v
-./rtl.v

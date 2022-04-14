@@ -7,7 +7,7 @@
 // Random value range can be increased once the determinant bit size is 
 // properly calculated and implemented.
 
-#include <iostream>
+#include <ostream>
 #include <fstream>
 #include <cstdlib>
 #include <cmath>
@@ -50,6 +50,8 @@ CCS_MAIN(int argc, char *argv[])
 
     // Control test values and negative values. Expanded with modulo indexes for larger arrays.
     ac_int<W,S> A[N][N] = { {1,0,10},{11,12,0},{33,55,66} }; // Determinant = 2882;
+//    ac_int<W,S> A[N][N]= { {1,0},{11,12} };
+//    ac_int<W,S> A[N][N] = { {1} };
     
     // Initialize the reference source matrix.
     int **matrix_ref = new int*[N];

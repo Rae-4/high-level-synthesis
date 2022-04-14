@@ -1,0 +1,5 @@
+Determinant testbench results - Sun Mar 20 14:23:22 2022
+
+Test control values - OK
+Test negative control values - OK
+Test random values - OK

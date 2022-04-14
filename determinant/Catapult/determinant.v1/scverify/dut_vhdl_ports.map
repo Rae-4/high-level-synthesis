@@ -1,6 +1,0 @@
-clk 1 std_logic bool
-rst 1 std_logic sc_logic
-input_rsc_dat 153 std_logic_vector sc_lv
-input_rsc_triosy_lz 1 std_logic sc_logic
-result_rsc_dat 17 std_logic_vector sc_lv
-result_rsc_triosy_lz 1 std_logic sc_logic
