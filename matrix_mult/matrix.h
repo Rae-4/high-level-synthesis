@@ -23,15 +23,21 @@ public:
     typedef Matrix<result_element_t, N> mult_result_t;
 
     /// Initialize the matrix to zero
-    Matrix() : transposed(false) { ac::init_array<AC_VAL_0>(&data[0][0], N*N); }
+    Matrix() : transposed(false), wptr(0), rptr(0) {
+        ac::init_array<AC_VAL_0>(&data[0][0], N*N);
+        ac::init_array<AC_VAL_DC>(&cache_a[0], 2*N);
+        ac::init_array<AC_VAL_DC>(&cache_b[0], 2*N);
+    }
     
     /// Initialize the matrix with input values
-    Matrix(element_t input_vals[N][N]) : transposed(false) { 
+    Matrix(element_t input_vals[N][N]) : transposed(false), wptr(0), rptr(0) { 
         for (index_t i = 0; i != N; i++) {
             for (index_t j = 0; j != N; j++) {
                 setElement(i, j, input_vals[i][j]);
             }
         }
+        ac::init_array<AC_VAL_DC>(&cache_a[0], 2*N);
+        ac::init_array<AC_VAL_DC>(&cache_b[0], 2*N);
     }
     
     /// Set a value to an element in the matrix.
@@ -75,16 +81,37 @@ public:
         mult_result_t result;
         result_element_t tmp;
                
-        for (index_t i = 0; i != N; i++) {
-            for (index_t j = 0; j != N; j++) {
-                tmp = 0;
-                for (index_t k = 0; k != N; k++) {
-                    tmp += getElement(i, k) * param.getElement(k, j);
+        for (index_t i = 0; i != N; i++) {                
+            for (index_t j = 0; j != N+1; j++) {
+                if (j != N) 
+                    mem_to_cache(i, j);
+
+                if (j != 0) {
+                    mac_cache(tmp);
+                    result.setElement(i, j-1, tmp);
                 }
-                result.setElement(i, j, tmp);
             }
         }
         return result;
+    }
+
+    /// Read a row/col of values from matrix memory to cache
+    void mem_to_cache(index_t i, index_t j) {
+        for (index_t k = 0; k != N; k++) {
+            cache_a[wptr] = getElement(i, k);
+            cache_b[wptr] = param.getElement(k, j);
+        }
+        wptr = wptr ? 0:1;
+    }
+
+    /// Multiply accumulate the cached row and column
+    void mac_cache(result_element_t &value) {
+        value = 0;
+        index_t offset = (rptr ? N:0);
+        for (int k = 0; k != N; k++) {
+            value += cache_a[offset+k] * cache_b[offset+k];
+        }
+        rptr = (rptr ? 0:1);
     }
 
     /// Move the contents of the matrix class to the target array.
@@ -98,6 +125,10 @@ public:
 
 private:
     element_t data[N][N];
+    element_t cache_a[2*N];
+    element_t cache_b[2*N];
+    ac_int<1, false> wptr;
+    ac_int<1, false> rptr;
     bool transposed;
 };
 
