@@ -54,6 +54,11 @@ struct chanStruct {
 void matrixMult(data_t A[N][N], data_t B[N][N], result_t C[N][N], int transpose);
 
 // HLS implementation
-void matrixMultHLS(hls_data_t A[N][N], hls_data_t B[N][N], hls_result_t C[N][N], hls_transpose_t transpose);
+void matrixMultHLS(
+    ac_channel< chanStruct<hls_data_t> > &A,
+    ac_channel< chanStruct<hls_data_t> > &B,
+    ac_channel< chanStruct<hls_result_t> > &C,
+    bool A_trans,
+    bool B_trans);
 
 #endif

@@ -5,6 +5,7 @@
 // I/O lib for printing the test results to file
 #include <fstream>
 #include <string>
+#include <string.h> // memcpy()
 #include <cstdlib>  // For rand()
 #include <climits>  // For integer limits
 
@@ -32,11 +33,16 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
 	int ret = 0; // Change value to 1 if test fails
 	int count = 0; // Count of the data mismatches.
     
+    // Input arrays for the golden reference function.
 	data_t a_in[N][N], b_in[N][N];
-	hls_data_t hls_a_in[N][N], hls_b_in[N][N];
-    ac_channel<chanStruct<hls_data_t>> chan_a;
-    ac_channel<chanStruct<hls_data_t>> chan_b;
-    ac_channel<chanStruct<hls_result_t>> chan_c;
+	
+	// Struct for writing a 2d array to channels.
+	chanStruct<hls_data_t> array_a, array_b;
+	
+	// Channels for the hierarchical top level function.
+    ac_channel< chanStruct<hls_data_t> > chan_a;
+    ac_channel< chanStruct<hls_data_t> > chan_b;
+    ac_channel< chanStruct<hls_result_t> > chan_c;
 	
 	// Put the output data of all tests here
 	result_t golden_out[NTESTS][N][N];
@@ -44,7 +50,6 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
 
 	int transpose = 0;
 	int transpose_n = 4;
-    bool a_trans, b_trans;
 	
 	int sign = 1, i, j, x, y;
 	bool descriped = false;
@@ -55,6 +60,10 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
     
     // Check for all transpose values
     for (transpose = 0; transpose < transpose_n; ++transpose) {
+        // Change the old transpose number value into booleans for A and B matrices.
+        bool transpose_a = (transpose == 1 || transpose == 3);
+        bool transpose_b = (transpose == 2 || transpose == 3);
+        
         // Control test case
         for (i = 0; i < N; ++i) {
             for (j = 0; j < N; ++j) {
@@ -66,14 +75,16 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
  
                 a_in[i][j] = x+y;
                 b_in[i][j] = x-y;
-                hls_a_in[i][j] = a_in[i][j];
-                hls_b_in[i][j] = b_in[i][j];
+                array_a.array[i][j] = a_in[i][j];
+                array_b.array[i][j] = b_in[i][j];
             }
         }
-        chan_a.write(hls_a_in);
-        chan_b.write(hls_b_in);
-        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, (transpose == 1 || transpose == 3), (transpose == 2 || transpose == 3));
-        hls_out[0] = chan_c.read().array;
+        // Write the 2d array structs to the input channels
+        chan_a.write(array_a);
+        chan_b.write(array_b);
+        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, transpose_a, transpose_b);
+        // Copy the result struct contents to the old 2d array result
+        memcpy(hls_out[0], chan_c.read().array, N*N*sizeof(hls_result_t));
         matrixMult(a_in, b_in, golden_out[0], transpose);
 
         // Negatives test - test range of [-N/2; N/2]
@@ -87,14 +98,14 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
  
                 a_in[i][j] = x;
                 b_in[i][j] = y;
-                hls_a_in[i][j] = a_in[i][j];
-                hls_b_in[i][j] = b_in[i][j];
+                array_a.array[i][j] = a_in[i][j];
+                array_b.array[i][j] = b_in[i][j];
             }
         }
-        chan_a.write(hls_a_in);
-        chan_b.write(hls_b_in);
-        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, (transpose == 1 || transpose == 3), (transpose == 2 || transpose == 3));
-        hls_out[1] = chan_c.read().array;
+        chan_a.write(array_a);
+        chan_b.write(array_b);
+        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, transpose_a, transpose_b);
+        memcpy(hls_out[1], chan_c.read().array, N*N*sizeof(hls_result_t));
         matrixMult(a_in, b_in, golden_out[1], transpose);
         
         // Random values with a in with different signs
@@ -106,14 +117,14 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
                 a_in[i][j] = x < RANGE_MIN ? RANGE_MIN : x;
                 b_in[i][j] = std::rand() % RANGE_MAX;
                 
-                hls_a_in[i][j] = a_in[i][j];
-                hls_b_in[i][j] = b_in[i][j];
+                array_a.array[i][j] = a_in[i][j];
+                array_b.array[i][j] = b_in[i][j];
             }
         }
-        chan_a.write(hls_a_in);
-        chan_b.write(hls_b_in);
-        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, (transpose == 1 || transpose == 3), (transpose == 2 || transpose == 3));
-        hls_out[2] = chan_c.read().array;
+        chan_a.write(array_a);
+        chan_b.write(array_b);
+        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, transpose_a, transpose_b);
+        memcpy(hls_out[2], chan_c.read().array, N*N*sizeof(hls_result_t));
         matrixMult(a_in, b_in, golden_out[2], transpose);
         
         // Limits - Test for different min and max integer limits
@@ -121,14 +132,14 @@ CCS_MAIN(int argc, char *argv[]) // The Catapult testbench should always be invo
             for (j = 0; j < N; ++j) {
                 a_in[i][j] = (i+j) & 1 ? RANGE_MAX : RANGE_MIN;
                 b_in[i][j] = i+j < N ? RANGE_MAX: RANGE_MIN;
-                hls_a_in[i][j] = a_in[i][j];
-                hls_b_in[i][j] = b_in[i][j];
+                array_a.array[i][j] = a_in[i][j];
+                array_b.array[i][j] = b_in[i][j];
             }
         }
-        chan_a.write(hls_a_in);
-        chan_b.write(hls_b_in);
-        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, (transpose == 1 || transpose == 3), (transpose == 2 || transpose == 3));
-        hls_out[3] = chan_c.read().array;
+        chan_a.write(array_a);
+        chan_b.write(array_b);
+        CCS_DESIGN(matrixMultHLS)(chan_a, chan_b, chan_c, transpose_a, transpose_b);
+        memcpy(hls_out[3], chan_c.read().array, N*N*sizeof(hls_result_t));
         matrixMult(a_in, b_in, golden_out[3], transpose);
         
         // Check for correctness and print the output file
