@@ -14,6 +14,7 @@ transpose = 3: Transpose A and B before multiplication
 #define _matrix_mult
 
 #include <ac_int.h>
+#include <ac_channel.h>
 
 
 const int N = 8;
@@ -42,6 +43,12 @@ typedef ac_int<WIDTH,true> hls_data_t;
 typedef ac_int<RESULT_WIDTH,true> hls_result_t;
 typedef ac_int<TRANSPOSE_WIDTH, false> hls_transpose_t;
 #endif
+
+// Struct for transferring a two dimensional array in an ac_channel
+template<typename dType>
+struct chanStruct {
+    dType array[N][N];
+};
 
 // Golden reference implementation
 void matrixMult(data_t A[N][N], data_t B[N][N], result_t C[N][N], int transpose);
